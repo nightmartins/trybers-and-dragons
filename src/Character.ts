@@ -14,7 +14,7 @@ Character1 pode atacar Character2;
 */
 import Archetype, { Mage } from './Archetypes';
 import Race, { Elf } from './Races';
-import Fighter from './Fighter';
+import Fighter, { SimpleFighter } from './Fighter';
 import Energy from './Energy';
 import getRandomInt from './utils';
 
@@ -84,7 +84,7 @@ export default class Character implements Fighter {
     return this._lifePoints;
   }
 
-  attack(enemy: Fighter): void {
+  attack(enemy: Fighter | SimpleFighter): void {
     return enemy.receiveDamage(this._strength);
   }
 
@@ -100,7 +100,10 @@ export default class Character implements Fighter {
     this._lifePoints = this._maxLifePoints;
   }
 
-  special(enemy: Fighter): void {
+  special(enemy: Fighter | SimpleFighter): void {
     enemy.receiveDamage(this._strength * getRandomInt(1, 4));
   }
 }
+
+// Refatoração para corrigir o requisito 9, com a dica dada pelo aluno Fernando Serpa no Slack da turma.
+// Fonte: https://code.tutsplus.com/pt/tutorials/solid-part-3-liskov-substitution-interface-segregation-principles--net-36710
