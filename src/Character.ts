@@ -42,48 +42,49 @@ export default class Character implements Fighter {
     };
   }
 
-  get race() {
+  get race(): Race {
     return this._race;
   }
 
-  get archetype() {
+  get archetype(): Archetype {
     return this._archetype;
   }
 
-  get lifePoints() {
+  get lifePoints(): number {
     return this._lifePoints;
   }
 
-  get strength() {
+  get strength(): number {
     return this._strength;
   }
 
-  get defense() {
+  get defense(): number {
     return this._defense;
   }
 
-  get energy() {
-    return this._energy;
+  get energy(): Energy {
+    return {
+      type_: this._energy.type_,
+      amount: this._energy.amount,
+    };
   }
 
-  get dexteriry() {
+  get dexterity(): number {
     return this._dexterity;
   }
 
-  receiveDamage(attackPoints: number) {
-    if (attackPoints > 0) {
-      const damage: number = this.defense - attackPoints;
-      if (damage > 0) {
-        this._lifePoints -= damage;
-      }
-      if (this._lifePoints < 0) {
-        this._lifePoints = -1;
-      }
+  receiveDamage(attackPoints: number): number {
+    const damage: number = attackPoints - this._defense;
+    if (damage > 0) {
+      this._lifePoints -= damage;
+    }
+    if (this._lifePoints < 1) {
+      this._lifePoints = -1;
     }
     return this._lifePoints;
   }
 
-  attack(enemy: Fighter) {
+  attack(enemy: Fighter): void {
     return enemy.receiveDamage(this._strength);
   }
 
@@ -91,17 +92,15 @@ export default class Character implements Fighter {
     this._strength += getRandomInt(1, 10);
     this._dexterity += getRandomInt(1, 10);
     this._energy.amount = 10;
-    const lifePointsImprove = getRandomInt(1, 10);
-    if (this._maxLifePoints + lifePointsImprove > this._race.maxLifePoints) {
+    this._defense += getRandomInt(1, 10);
+    this._maxLifePoints += getRandomInt(1, 10);
+    if (this._maxLifePoints > this._race.maxLifePoints) {
       this._maxLifePoints = this._race.maxLifePoints;
-    } else {
-      this._maxLifePoints += lifePointsImprove;
     }
     this._lifePoints = this._maxLifePoints;
   }
 
-  special(enemy: Fighter) {
-    const specialMultiplier = getRandomInt(1, 4);
-    return enemy.receiveDamage(this._strength * specialMultiplier);
+  special(enemy: Fighter): void {
+    enemy.receiveDamage(this._strength * getRandomInt(1, 4));
   }
 }
