@@ -12,39 +12,96 @@ Character pode subir de nível através do método levelUp, e seus atributos (am
 Character pode receber danos através do método receiveDamage;
 Character1 pode atacar Character2;
 */
-// import Archetype from './Archetypes';
-// import Race from './Races';
+import Archetype, { Mage } from './Archetypes';
+import Race, { Elf } from './Races';
+import Fighter from './Fighter';
+import Energy from './Energy';
+import getRandomInt from './utils';
 
-// export interface Fighter {
-//   race: Race;
-//   archetype: Archetype;
+export default class Character implements Fighter {
+  private _race: Race;
+  private _archetype: Archetype;
+  private _maxLifePoints: number;
+  private _lifePoints: number;
+  private _strength: number;
+  private _defense: number;
+  private _dexterity: number;
+  private _energy: Energy;
 
-// }
+  constructor(name: string) {
+    this._dexterity = getRandomInt(1, 10);
+    this._race = new Elf(name, this._dexterity);
+    this._archetype = new Mage(name);
+    this._maxLifePoints = this._race.maxLifePoints / 2;
+    this._lifePoints = this._maxLifePoints;
+    this._strength = getRandomInt(1, 10);
+    this._defense = getRandomInt(1, 10);
+    this._energy = {
+      type_: this._archetype.energyType,
+      amount: getRandomInt(1, 10),
+    };
+  }
 
-// export default abstract class Archetype {
-//   private _special: number;
-//   private _cost: number;
+  get race() {
+    return this._race;
+  }
 
-//   constructor(private _name: string) {
-//     this._special = 0;
-//     this._cost = 0;
-//   }
+  get archetype() {
+    return this._archetype;
+  }
 
-//   get name(): string {
-//     return this._name;
-//   }
+  get lifePoints() {
+    return this._lifePoints;
+  }
 
-//   get special(): number {
-//     return this._special;
-//   }
+  get strength() {
+    return this._strength;
+  }
 
-//   get cost(): number {
-//     return this._cost;
-//   }
+  get defense() {
+    return this._defense;
+  }
 
-//   static createdArchetypeInstances(): number {
-//     throw new Error('Not implemented');
-//   }
+  get energy() {
+    return this._energy;
+  }
 
-//   abstract get energyType(): EnergyType;
-// }
+  get dexteriry() {
+    return this._dexterity;
+  }
+
+  receiveDamage(attackPoints: number) {
+    if (attackPoints > 0) {
+      const damage: number = this.defense - attackPoints;
+      if (damage > 0) {
+        this._lifePoints -= damage;
+      }
+      if (this._lifePoints < 0) {
+        this._lifePoints = -1;
+      }
+    }
+    return this._lifePoints;
+  }
+
+  attack(enemy: Fighter) {
+    return enemy.receiveDamage(this._strength);
+  }
+
+  levelUp(): void {
+    this._strength += getRandomInt(1, 10);
+    this._dexterity += getRandomInt(1, 10);
+    this._energy.amount = 10;
+    const lifePointsImprove = getRandomInt(1, 10);
+    if (this._maxLifePoints + lifePointsImprove > this._race.maxLifePoints) {
+      this._maxLifePoints = this._race.maxLifePoints;
+    } else {
+      this._maxLifePoints += lifePointsImprove;
+    }
+    this._lifePoints = this._maxLifePoints;
+  }
+
+  special(enemy: Fighter) {
+    const specialMultiplier = getRandomInt(1, 4);
+    return enemy.receiveDamage(this._strength * specialMultiplier);
+  }
+}
